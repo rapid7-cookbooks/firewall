@@ -134,10 +134,18 @@ def rule_exists?
   to = ''
   to << "#{Regexp.escape(@new_resource.destination)}\s" if @new_resource.destination
 
-  if @new_resource.protocol && @new_resource.port
-    to << "#{Regexp.escape("#{@new_resource.port}/#{@new_resource.protocol}")}\s"
-  elsif @new_resource.port
-    to << "#{Regexp.escape("#{@new_resource.port}")}\s"
+  port_str = ''
+  if @new_resource.port
+    port_str = "#{@new_resource.port}"
+  elsif @new_resource.ports
+    port_str = "#{@new_resource.ports.join(',')}"
+  elsif @new_resource.port_range
+    port_str = "#{@new_resource.port_range.first}:#{@new_resource.port_range.last}"
+  end
+  if @new_resource.protocol && port_str
+    to << "#{Regexp.escape("#{port_str}/#{@new_resource.protocol}")}\s"
+  elsif port_str
+    to << "#{Regexp.escape("#{port_str}")}\s"
   end
 
   to << "Anywhere\s" if to.empty?
